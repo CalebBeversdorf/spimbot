@@ -81,6 +81,15 @@ main:
     jal solve1
     jal solve1
 
+    jal solve1
+    jal solve1
+    jal solve1
+    jal solve1
+    jal solve1
+    jal solve1
+    jal solve1
+    jal solve1
+
     li $a0, 10
     #jal move_one
     jal move_bonk_shoot
@@ -119,7 +128,7 @@ move_one:
     sub $sp, $sp, 4
     sw $ra, 0($sp)
     sw $a0, VELOCITY
-    li $t6, 20000
+    li $t6, 10000
     div $t5, $t6, $a0
 loopn:
     beq $t5, $0, endn
@@ -142,7 +151,6 @@ move_pat_LR:
     li $a0, 10
     jal move_one
     li $a0, 10
-
 
     jal shoot_all
 
@@ -196,16 +204,27 @@ move_bonk_shoot:
 
     la $t0, has_bonked
     li $t1, 1
+    li $t2, 0
+    j LR_till_bonk
+
+bonk_mover:
+    beq $t0, $t2, RL_till_end
+    jal turn_45_right
+    j bonk_mover
+
+bonk_mover2:
+    beq $t0, $t2, LR_till_end
+    jal turn_45_left
+    j bonk_mover2
+
 LR_till_bonk:
     beq $t0, $t1, bonk_mover
     jal move_pat_LR
     j LR_till_bonk
   
-bonk_mover:
-    
     
 RL_till_bonk: 
-    beq $t0, $t1, endPattern
+    beq $t0, $t1, bonk_mover2
     jal move_pat_RL
     j RL_till_bonk
 
@@ -250,6 +269,19 @@ turn_angle:
 
 turn_90_right:
     li $t1, 90
+    sw $t1, ANGLE
+    li $t1, 0
+    sw $t1, ANGLE_CONTROL
+    jr $ra
+
+turn_45_right:
+    li $t1, 45
+    sw $t1, ANGLE
+    li $t1, 0
+    sw $t1, ANGLE_CONTROL
+    jr $ra
+turn_45_left:
+    li $t1, -45
     sw $t1, ANGLE
     li $t1, 0
     sw $t1, ANGLE_CONTROL

@@ -48,6 +48,7 @@ has_bonked: .byte 0
 has_timed_out: .byte 0
 returned_puzzle: .byte 0
 turning_right: .byte 0
+not_called_puzzle: .byte 1
 
 
 .text
@@ -74,22 +75,11 @@ main:
     # move diagonlly while shooting in all directions, if bonk, turn 90, continue till bonk
 
     jal solve1
-    # jal solve1
-    # jal solve1
-    # jal solve1
-    # jal solve1
-    # jal solve1
-    # jal solve1
-    # jal solve1
 
-    # jal solve1
-    # jal solve1
-    # jal solve1
-    # jal solve1
-    # jal solve1
-    # jal solve1
-    # jal solve1
-    # jal solve1
+    lw $t0, TIMER
+    addi $t0, $t0, 1
+    sw $t0, TIMER 
+
 
     li $a0, 10
     # #jal move_one
@@ -100,9 +90,6 @@ main:
     #jal move_and_shoot
    # jal move_diagonal
    # jal move_and_shoot
-
-
-
 
 
     # jal shoot_all_charged
@@ -354,24 +341,16 @@ inner_loop:
     
 
 solve1: 
+    la $t0, returned_puzzle
+    sb $0, 0($t0)
+
     la $a0, board
     sw $a0, REQUEST_PUZZLE
-
-    la $a0, returned_puzzle
+    
 wait_solve1:
-    lb $a1, 0($a0)
+    lb $a1, 0($t0)
     beq $a1, $0, wait_solve1
     sb $0, 0($a0)
-
-    # la $a0, board
-    # sub $sp, $sp, 4
-    # sw $ra, 0($sp)
-    # jal quant_solve
-
-    # lw $ra, 0($sp)
-    # addi $sp, $sp, 4
-    # la $a0, board
-    # sw $a0, SUBMIT_SOLUTION
 
     jr $ra
 
@@ -462,9 +441,22 @@ set_angle:
 timer_interrupt:
     sw      $0, TIMER_ACK
 
-    la $t0, has_timed_out
-    li $t1, 1
-    sb $t1, 0($t0)
+    lw $t0, GET_AVAILABLE_BULLETS
+    slti $t1, $t0, 50
+    lb $t2, not_called_puzzle
+    and $t3, $t1, $t2
+    beq $0, $t3, reset_timer
+
+    la $a0, board
+    sw $a0, REQUEST_PUZZLE
+
+    la $t0, not_called_puzzle
+    sb $0, 0($t0)
+
+reset_timer:
+    lw $t0, TIMER
+    addi $t0, $t0, 1000
+    sw $t0, TIMER 
 
     j        interrupt_dispatch     # see if other interrupts are waiting
 
@@ -472,6 +464,10 @@ request_puzzle_interrupt:
     sw      $0, REQUEST_PUZZLE_ACK
    
     la $t0, returned_puzzle
+    li $t1, 1
+    sb $t1, 0($t0)
+
+    la $t0, not_called_puzzle
     li $t1, 1
     sb $t1, 0($t0)
 

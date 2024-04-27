@@ -74,28 +74,46 @@ main:
     # YOUR CODE GOES HERE!!!!!!
     # move diagonlly while shooting in all directions, if bonk, turn 90, continue till bonk
 
-  
- 
- 
+   
+    jal solve1
+
+    jal turn_90_left
+    li $a0, 1
+    jal shoot_one
+    li $a0, 2
+    sw $a0, CHARGE_SHOT
+    li $a0, 10
+    jal move_one
+    jal move_one
+    jal move_one
+    jal move_one
+    jal move_one
+    jal move_one
+    jal move_one
+    
+    jal turn_90_right
+    li $a0, 2
+    jal shoot_one
+
+    li $a0, 10
+    jal move_one
+    jal move_one
+    jal move_one
+    jal move_one
+    jal move_one
+    jal move_one
 
 
-
-
-
- 
- 
-     jal solve1
-    # jal solve1
-    # jal solve1
-    # jal solve1
-    # jal solve1
-    # jal solve1
+    
+    
 
     
  
     li $a0, 10
-    # #jal move_one
     jal move_bonk_shoot
+
+
+
     #li $a0, -45
     #jal turn_angle
     #li $a0, 10
@@ -131,15 +149,14 @@ move_one:
     sub $sp, $sp, 4
     sw $ra, 0($sp)
     sw $a0, VELOCITY
-    li $t6, 10000
-    div $t5, $t6, $a0
+    li $t5, 2667
 loopn:
     beq $t5, $0, endn
     sub $t5, $t5, 1
     j loopn
 endn:
-    li $a0, 0
-    sw $a0, VELOCITY
+    li $a1, 0
+    sw $a1, VELOCITY
 
     lw $ra, 0($sp)
     addi $sp, $sp, 4
@@ -416,7 +433,7 @@ bonk_interrupt:
     # j set_angle
 
 left_turn:
-    li $t1, 45
+    li $t1, 15
     lw $t4, angle_store
     mul $t4, $t1, $t4
     andi $t4, $t4, 255

@@ -73,13 +73,10 @@ main:
         
     # YOUR CODE GOES HERE!!!!!!
     # move diagonlly while shooting in all directions, if bonk, turn 90, continue till bonk
-
-    jal solve1
-
+    
     lw $t0, TIMER
     addi $t0, $t0, 1
     sw $t0, TIMER 
-
 
     li $a0, 10
     # #jal move_one
@@ -90,6 +87,9 @@ main:
     #jal move_and_shoot
    # jal move_diagonal
    # jal move_and_shoot
+
+
+
 
 
     # jal shoot_all_charged
@@ -128,58 +128,30 @@ endn:
 
     lw $ra, 0($sp)
     addi $sp, $sp, 4
+
     jr $ra
 
 
 move_pat_LR:
+  
+    # jal solve2
     sub $sp, $sp, 4
     sw $ra, 0($sp)
 
     jal turn_90_left
     li $a0, 10
     jal move_one
-    li $a0, 10
-
-    jal shoot_all
-
-    li $a0, 10
-    jal move_one
-    li $a0, 10
-
-    jal turn_90_right
-
-    li $a0, 10
-    jal move_one
-    li $a0, 10
-    jal shoot_all
-    jal move_one
-
-    lw $ra, 0($sp)
-    addi $sp, $sp, 4
-    jr $ra
-
-move_pat_RL:
-    sub $sp, $sp, 4
-    sw $ra, 0($sp)
-
-    jal turn_90_right
-    li $a0, 10
-    jal move_one
-    li $a0, 10
-
-    jal shoot_all
-
-    li $a0, 10
-    jal move_one
-    li $a0, 10
-
-    jal turn_90_left
-
-    li $a0, 10
-    jal move_one
-    li $a0, 10
-    jal shoot_all
     
+   
+    li $a0, 10
+    jal move_one
+    jal turn_90_right
+    li $a0, 10
+    jal move_one
+    jal shoot_all
+    li $a0, 10
+    jal move_one
+ 
     lw $ra, 0($sp)
     addi $sp, $sp, 4
     jr $ra
@@ -189,24 +161,13 @@ move_pat_RL:
 move_bonk_shoot:
     sub $sp, $sp, 4
     sw $ra, 0($sp)
-
-#     la $t0, has_bonked
-     li $t5, 1
-     li $t6, 0
-#     j LR_till_bonk
-
-# bonk_mover:
-#     beq $t0, $t2, RL_till_end
-#     jal turn_45_right
-#     j bonk_mover
-
-# bonk_mover2:
-#     beq $t0, $t2, LR_till_end
-#     jal turn_45_left
-#     j bonk_mover2
+    # jal solve2
+    li $t5, 1
+    li $t6, 0
 
 
 LR_till_bonk:
+    # jal solve2
     jal move_pat_LR
     j LR_till_bonk
   
@@ -266,6 +227,7 @@ turn_45_right:
     sw $t1, ANGLE_CONTROL
     jr $ra
 turn_45_left:
+
     li $t1, -45
     sw $t1, ANGLE
     li $t1, 0
@@ -328,31 +290,47 @@ shoot_one:
 #     jr $ra
 
 # input: clock cycles to go
-loop_timer:
-    lw $t1, TIMER
-    add $t1, $t1, $a1
-    sw $t1, TIMER
-    la $t2, has_timed_out
-inner_loop:
-    lb $t1, 0($t2)
-    beq $t1, $0, inner_loop
-    sb $0, 0($t2)
-    jr $ra
+# loop_timer:
+#     lw $t1, TIMER
+#     add $t1, $t1, $a1
+#     sw $t1, TIMER
+#     la $t2, has_timed_out
+# inner_loop:
+#     lb $t1, 0($t2)
+#     beq $t1, $0, inner_loop
+#     sb $0, 0($t2)
+#     jr $ra
     
 
 solve1: 
-    la $t0, returned_puzzle
-    sb $0, 0($t0)
-
     la $a0, board
     sw $a0, REQUEST_PUZZLE
-    
+
+    la $a0, returned_puzzle
 wait_solve1:
-    lb $a1, 0($t0)
+    lb $a1, 0($a0)
     beq $a1, $0, wait_solve1
     sb $0, 0($a0)
 
+    # la $a0, board
+    # sub $sp, $sp, 4
+    # sw $ra, 0($sp)
+    # jal quant_solve
+
+    # lw $ra, 0($sp)
+    # addi $sp, $sp, 4
+    # la $a0, board
+    # sw $a0, SUBMIT_SOLUTION
+
     jr $ra
+
+solve2: 
+    la $a0, board
+    sw $a0, REQUEST_PUZZLE
+
+    la $a0, returned_puzzle
+    jr $ra
+
 
 .kdata
 chunkIH:    .space 40
@@ -447,15 +425,16 @@ timer_interrupt:
     and $t3, $t1, $t2
     beq $0, $t3, reset_timer
 
-    la $a0, board
-    sw $a0, REQUEST_PUZZLE
 
     la $t0, not_called_puzzle
     sb $0, 0($t0)
 
+    la $a0, board
+    sw $a0, REQUEST_PUZZLE
+
 reset_timer:
     lw $t0, TIMER
-    addi $t0, $t0, 1000
+    addi $t0, $t0, 10000
     sw $t0, TIMER 
 
     j        interrupt_dispatch     # see if other interrupts are waiting

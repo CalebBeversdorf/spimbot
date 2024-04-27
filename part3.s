@@ -148,7 +148,7 @@ endn:
 
 move_pat_LR:
   
-    jal solve1
+    
     sub $sp, $sp, 4
     sw $ra, 0($sp)
 #jal solve1
@@ -174,13 +174,12 @@ move_pat_LR:
 move_bonk_shoot:
     sub $sp, $sp, 4
     sw $ra, 0($sp)
-    jal solve2
     li $t5, 1
     li $t6, 0
 
 
 LR_till_bonk:
-    jal solve1
+    jal solve2
     jal move_pat_LR
     j LR_till_bonk
   
@@ -317,36 +316,28 @@ inner_loop:
 
 solve1: 
     la $t0, returned_puzzle
+    beq $t0, $0, skip_solve_solve1
+
     la $a0, board
     sw $a0, REQUEST_PUZZLE
-    
     sb $0, 0($t0)
-
     
 wait_solve1:
     lb $a1, 0($t0)
     beq $a1, $0, wait_solve1
 
-    # la $a0, board
-    # sub $sp, $sp, 4
-    # sw $ra, 0($sp)
-    # jal quant_solve
-
-    # lw $ra, 0($sp)
-    # addi $sp, $sp, 4
-    # la $a0, board
-    # sw $a0, SUBMIT_SOLUTION
-
+skip_solve_solve1:
     jr $ra
+
 
 solve2: 
     la $t0, returned_puzzle
-    beq $t0, $0, skip_solve
+    beq $t0, $0, skip_solve_solve2
 
     la $a0, board
     sw $a0, REQUEST_PUZZLE
     sb $0, 0($t0)
-skip_solve:
+skip_solve_solve2:
     jr $ra
 
 .kdata
@@ -445,6 +436,8 @@ timer_interrupt:
 request_puzzle_interrupt:
     sw      $0, REQUEST_PUZZLE_ACK
     
+    sw $0, VELOCITY
+
     la $t2, quant_solve
     la $a0, board
     jalr $t2
@@ -455,6 +448,8 @@ request_puzzle_interrupt:
     li $t1, 1
     sb $t1, 0($t0)
 
+    li $a0, 10
+    sw $a0, VELOCITY
 
     j       interrupt_dispatch
 

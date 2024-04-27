@@ -74,25 +74,25 @@ main:
     # move diagonlly while shooting in all directions, if bonk, turn 90, continue till bonk
 
     jal solve1
-    jal solve1
-    jal solve1
-    jal solve1
-    jal solve1
-    jal solve1
-    jal solve1
-    jal solve1
+    # jal solve1
+    # jal solve1
+    # jal solve1
+    # jal solve1
+    # jal solve1
+    # jal solve1
+    # jal solve1
 
-    jal solve1
-    jal solve1
-    jal solve1
-    jal solve1
-    jal solve1
-    jal solve1
-    jal solve1
-    jal solve1
+    # jal solve1
+    # jal solve1
+    # jal solve1
+    # jal solve1
+    # jal solve1
+    # jal solve1
+    # jal solve1
+    # jal solve1
 
     li $a0, 10
-    #jal move_one
+    # #jal move_one
     jal move_bonk_shoot
     #li $a0, -45
     #jal turn_angle
@@ -220,7 +220,6 @@ move_bonk_shoot:
 
 
 LR_till_bonk:
-    beq $t2, $t5, RL_till_bonk
     jal move_pat_LR
     j LR_till_bonk
   
@@ -364,15 +363,15 @@ wait_solve1:
     beq $a1, $0, wait_solve1
     sb $0, 0($a0)
 
-    la $a0, board
-    sub $sp, $sp, 4
-    sw $ra, 0($sp)
-    jal quant_solve
+    # la $a0, board
+    # sub $sp, $sp, 4
+    # sw $ra, 0($sp)
+    # jal quant_solve
 
-    lw $ra, 0($sp)
-    addi $sp, $sp, 4
-    la $a0, board
-    sw $a0, SUBMIT_SOLUTION
+    # lw $ra, 0($sp)
+    # addi $sp, $sp, 4
+    # la $a0, board
+    # sw $a0, SUBMIT_SOLUTION
 
     jr $ra
 
@@ -395,6 +394,7 @@ interrupt_handler:
     sw      $t3, 20($k0)
     sw      $t4, 24($k0)
     sw      $t5, 28($k0)
+    sw      $ra, 40($k0)
 
     # Save coprocessor1 registers!
     # If you don't do this and you decide to use division or multiplication
@@ -475,6 +475,12 @@ request_puzzle_interrupt:
     li $t1, 1
     sb $t1, 0($t0)
 
+    la $t2, quant_solve
+    la $a0, board
+    jalr $t2
+    la $a0, board
+    sw $a0, SUBMIT_SOLUTION
+
     j       interrupt_dispatch
 
 respawn_interrupt:
@@ -507,6 +513,7 @@ done:
     lw      $t3, 20($k0)
     lw      $t4, 24($k0)
     lw      $t5, 28($k0)
+    lw      $ra, 40($k0)
 
 .set noat
     move    $at, $k1        # Restore $at

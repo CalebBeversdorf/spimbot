@@ -48,6 +48,7 @@ has_bonked: .byte 0
 has_timed_out: .byte 0
 returned_puzzle: .byte 1
 turning_right: .byte 0
+angle_store: .word 1
 
 
 .text
@@ -333,6 +334,8 @@ skip_solve_solve1:
 solve2: 
     la $t0, returned_puzzle
     beq $t0, $0, skip_solve_solve2
+    lw $t1, GET_AVAILABLE_BULLETS
+    bgt $t1, 30, skip_solve_solve2
 
     la $a0, board
     sw $a0, REQUEST_PUZZLE
@@ -405,15 +408,21 @@ bonk_interrupt:
 
 
     la $t2, turning_right
-   # beq $t2, 0, left_turn
+    # beq $t2, 0, left_turn
 
-    sw $t1, ANGLE
-    sb $0, 0($t2)
-    j set_angle
+    # li $t1, 30
+    # sw $t1, ANGLE
+    # sb $0, 0($t2)
+    # j set_angle
 
 left_turn:
-    li $t1, -30
-    sw $t1, ANGLE
+    li $t1, 45
+    lw $t4, angle_store
+    mul $t4, $t1, $t4
+    andi $t4, $t4, 255
+    sw $t4, angle_store
+    
+    sw $t4, ANGLE
     li $t3, 1
     sb $t3, 0($t2)
 

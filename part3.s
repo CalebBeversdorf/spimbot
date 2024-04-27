@@ -47,6 +47,7 @@ board:     .space 512
 has_bonked: .byte 0
 has_timed_out: .byte 0
 returned_puzzle: .byte 0
+turning_right: .byte 0
 
 
 .text
@@ -202,31 +203,29 @@ move_bonk_shoot:
     sub $sp, $sp, 4
     sw $ra, 0($sp)
 
-    la $t0, has_bonked
-    li $t1, 1
-    li $t2, 0
-    j LR_till_bonk
+#     la $t0, has_bonked
+     li $t5, 1
+     li $t6, 0
+#     j LR_till_bonk
 
-bonk_mover:
-    beq $t0, $t2, RL_till_end
-    jal turn_45_right
-    j bonk_mover
+# bonk_mover:
+#     beq $t0, $t2, RL_till_end
+#     jal turn_45_right
+#     j bonk_mover
 
-bonk_mover2:
-    beq $t0, $t2, LR_till_end
-    jal turn_45_left
-    j bonk_mover2
+# bonk_mover2:
+#     beq $t0, $t2, LR_till_end
+#     jal turn_45_left
+#     j bonk_mover2
+
 
 LR_till_bonk:
-    beq $t0, $t1, bonk_mover
+    beq $t2, $t5, RL_till_bonk
     jal move_pat_LR
     j LR_till_bonk
   
     
-RL_till_bonk: 
-    beq $t0, $t1, bonk_mover2
-    jal move_pat_RL
-    j RL_till_bonk
+
 
 endPattern:
  
@@ -438,6 +437,25 @@ bonk_interrupt:
     la      $t0, has_bonked
     li      $t1, 1
     sb      $t1, 0($t0)
+
+
+    la $t2, turning_right
+   # beq $t2, 0, left_turn
+    li $t1, 50
+    sw $t1, ANGLE
+    sb $0, 0($t2)
+    j set_angle
+
+left_turn:
+    li $t1, -50
+    sw $t1, ANGLE
+    li $t3, 1
+    sb $t3, 0($t2)
+
+set_angle:
+    li $t1, 0
+    sw $t1, ANGLE_CONTROL
+
     #Fill in your bonk handler code here
     j       interrupt_dispatch      # see if other interrupts are waiting
 

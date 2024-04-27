@@ -73,16 +73,15 @@ main:
     # YOUR CODE GOES HERE!!!!!!
     # move diagonlly while shooting in all directions, if bonk, turn 90, continue till bonk
 
-    jal solve1
-    # jal solve1
-    # jal solve1
-    # jal solve1
-    # jal solve1
-    # jal solve1
-    # jal solve1
-    # jal solve1
+  
+ 
+ 
 
-    # jal solve1
+
+
+
+
+     #jal solve1
     # jal solve1
     # jal solve1
     # jal solve1
@@ -141,58 +140,30 @@ endn:
 
     lw $ra, 0($sp)
     addi $sp, $sp, 4
+
     jr $ra
 
 
 move_pat_LR:
+  
+    jal solve2
     sub $sp, $sp, 4
     sw $ra, 0($sp)
 
     jal turn_90_left
     li $a0, 10
     jal move_one
-    li $a0, 10
-
-    jal shoot_all
-
-    li $a0, 10
-    jal move_one
-    li $a0, 10
-
-    jal turn_90_right
-
-    li $a0, 10
-    jal move_one
-    li $a0, 10
-    jal shoot_all
-    jal move_one
-
-    lw $ra, 0($sp)
-    addi $sp, $sp, 4
-    jr $ra
-
-move_pat_RL:
-    sub $sp, $sp, 4
-    sw $ra, 0($sp)
-
-    jal turn_90_right
-    li $a0, 10
-    jal move_one
-    li $a0, 10
-
-    jal shoot_all
-
-    li $a0, 10
-    jal move_one
-    li $a0, 10
-
-    jal turn_90_left
-
-    li $a0, 10
-    jal move_one
-    li $a0, 10
-    jal shoot_all
     
+   
+    li $a0, 10
+    jal move_one
+    jal turn_90_right
+    li $a0, 10
+    jal move_one
+    jal shoot_all
+    li $a0, 10
+    jal move_one
+ 
     lw $ra, 0($sp)
     addi $sp, $sp, 4
     jr $ra
@@ -202,24 +173,13 @@ move_pat_RL:
 move_bonk_shoot:
     sub $sp, $sp, 4
     sw $ra, 0($sp)
-
-#     la $t0, has_bonked
-     li $t5, 1
-     li $t6, 0
-#     j LR_till_bonk
-
-# bonk_mover:
-#     beq $t0, $t2, RL_till_end
-#     jal turn_45_right
-#     j bonk_mover
-
-# bonk_mover2:
-#     beq $t0, $t2, LR_till_end
-#     jal turn_45_left
-#     j bonk_mover2
+jal solve2
+    li $t5, 1
+    li $t6, 0
 
 
 LR_till_bonk:
+    jal solve2
     jal move_pat_LR
     j LR_till_bonk
   
@@ -279,6 +239,7 @@ turn_45_right:
     sw $t1, ANGLE_CONTROL
     jr $ra
 turn_45_left:
+
     li $t1, -45
     sw $t1, ANGLE
     li $t1, 0
@@ -375,6 +336,13 @@ wait_solve1:
 
     jr $ra
 
+solve2: 
+    la $a0, board
+    sw $a0, REQUEST_PUZZLE
+
+    la $a0, returned_puzzle
+    jr $ra
+
 .kdata
 chunkIH:    .space 40
 non_intrpt_str:    .asciiz "Non-interrupt exception\n"
@@ -441,13 +409,13 @@ bonk_interrupt:
 
     la $t2, turning_right
    # beq $t2, 0, left_turn
-    li $t1, 50
+
     sw $t1, ANGLE
     sb $0, 0($t2)
     j set_angle
 
 left_turn:
-    li $t1, -50
+    li $t1, -30
     sw $t1, ANGLE
     li $t3, 1
     sb $t3, 0($t2)
